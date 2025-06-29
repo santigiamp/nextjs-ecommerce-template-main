@@ -16,7 +16,9 @@ from datetime import datetime
 app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 
 # Configuración de PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://ecommerce_user:nq43MAJZqF4v9sx6rVK0QvmKbY0atqTr@dpg-d1gqouvfte5s7390jmf0-a.oregon-postgres.render.com/ecommerce_db_s72g")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required")
 
 # Para psycopg3, necesitamos especificar el driver
 if DATABASE_URL.startswith("postgresql://"):
@@ -28,9 +30,9 @@ Base = declarative_base()
 
 # Configuración de Cloudinary
 cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", "dakyybuuz"),
-    api_key=os.getenv("CLOUDINARY_API_KEY", "472314754797544"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET", "2L85QlXg3tD2HcLI_hT3DHhqamk")
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
 # Modelo de la base de datos
