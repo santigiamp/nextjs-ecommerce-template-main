@@ -197,18 +197,26 @@ def health_check():
 async def upload_image(file: UploadFile = File(...)):
     """Subir imagen de producto"""
     try:
+        # Asegurar que el directorio uploads existe
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        
         # Validar tipo de archivo
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
         
+        # Validar que el archivo tenga nombre
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="El archivo debe tener un nombre")
+        
         # Generar nombre único
-        file_extension = file.filename.split(".")[-1]
+        file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
         unique_filename = f"{uuid.uuid4()}.{file_extension}"
         file_path = UPLOAD_DIR / unique_filename
         
-        # Guardar archivo
+        # Leer y guardar archivo
+        content = await file.read()
         with file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(content)
         
         # URL para acceder a la imagen
         image_url = f"/uploads/{unique_filename}"
@@ -219,8 +227,12 @@ async def upload_image(file: UploadFile = File(...)):
             message="Imagen subida exitosamente"
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir imagen: {str(e)}")
+        import traceback
+        error_detail = f"Error al subir imagen: {str(e)}. Traceback: {traceback.format_exc()}"
+        raise HTTPException(status_code=500, detail=error_detail)
 
 @app.get("/productos", response_model=List[Producto])
 def get_productos(categoria: Optional[str] = None, activo: bool = True):
