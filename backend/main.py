@@ -17,6 +17,9 @@ app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 
 # Configuración de PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL")
+print(f"DATABASE_URL configured: {DATABASE_URL is not None}")
+if DATABASE_URL:
+    print(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is required")
 
@@ -28,10 +31,16 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Configuración de Cloudinary
+cloudinary_name = os.getenv("CLOUDINARY_CLOUD_NAME")
+cloudinary_key = os.getenv("CLOUDINARY_API_KEY")
+cloudinary_secret = os.getenv("CLOUDINARY_API_SECRET")
+
+print(f"Cloudinary configured: name={cloudinary_name is not None}, key={cloudinary_key is not None}, secret={cloudinary_secret is not None}")
+
 cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+    cloud_name=cloudinary_name,
+    api_key=cloudinary_key,
+    api_secret=cloudinary_secret
 )
 
 # Modelo de la base de datos
