@@ -22,10 +22,7 @@ export const productAPI = {
     const response = await fetch(`${API_URL}/productos?${params.toString()}`);
     const products = await handleResponse<Product[]>(response);
     
-    // Filtrar solo productos con imágenes reales (del servidor)
-    return products.filter(product => 
-      product.imagen_url.includes('nextjs-ecommerce-template-main.onrender.com/uploads/')
-    );
+    return products;
   },
 
   // Obtener un producto específico

@@ -1,24 +1,73 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import sqlite3
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.sql import func
+import cloudinary
+import cloudinary.uploader
 import json
 from typing import List, Optional
 import os
-import shutil
-import uuid
-from pathlib import Path
+from datetime import datetime
 
-app = FastAPI(title="E-commerce Mayorista API", version="2.0.0")
+app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 
-# Crear directorio para uploads si no existe
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+# Configuración de PostgreSQL
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://ecommerce_user:nq43MAJZqF4v9sx6rVK0QvmKbY0atqTr@dpg-d1gqouvfte5s7390jmf0-a.oregon-postgres.render.com/ecommerce_db_s72g")
 
-# Servir archivos estáticos (imágenes)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# Configuración de Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", "dakyybuuz"),
+    api_key=os.getenv("CLOUDINARY_API_KEY", "472314754797544"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET", "2L85QlXg3tD2HcLI_hT3DHhqamk")
+)
+
+# Modelo de la base de datos
+class ProductoDB(Base):
+    __tablename__ = "productos"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    precio = Column(Float, nullable=False)
+    descripcion = Column(Text)
+    imagen_url = Column(String)
+    categoria = Column(String)
+    stock = Column(Integer)
+    precio_mayorista = Column(Float)
+    minimo_mayorista = Column(Integer, default=1)
+    activo = Column(Boolean, default=True)
+    fecha_creacion = Column(DateTime, default=func.now())
+
+class PedidoDB(Base):
+    __tablename__ = "pedidos"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    telefono = Column(String, nullable=False)
+    producto_id = Column(Integer)
+    producto_nombre = Column(String)
+    cantidad = Column(Integer)
+    comentarios = Column(Text)
+    fecha_pedido = Column(DateTime, default=func.now())
+    estado = Column(String, default="pendiente")
+
+# Crear tablas
+Base.metadata.create_all(bind=engine)
+
+# Dependency para obtener la sesión de la base de datos
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Configurar CORS
 app.add_middleware(
@@ -70,136 +119,63 @@ class ImageUploadResponse(BaseModel):
     url: str
     message: str
 
-# Inicializar base de datos mejorada
-def init_db():
-    conn = sqlite3.connect('ecommerce.db')
-    cursor = conn.cursor()
-    
-    # Crear tabla productos con campos adicionales
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS productos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            precio REAL NOT NULL,
-            descripcion TEXT,
-            imagen_url TEXT,
-            categoria TEXT,
-            stock INTEGER DEFAULT NULL,
-            precio_mayorista REAL DEFAULT NULL,
-            minimo_mayorista INTEGER DEFAULT 1,
-            activo BOOLEAN DEFAULT 1,
-            fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Crear tabla pedidos
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS pedidos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            telefono TEXT NOT NULL,
-            producto_id INTEGER,
-            producto_nombre TEXT,
-            cantidad INTEGER,
-            comentarios TEXT,
-            fecha_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
-            estado TEXT DEFAULT 'pendiente'
-        )
-    ''')
-    
-    # Verificar si hay productos, si no, insertar ejemplos
-    cursor.execute('SELECT COUNT(*) FROM productos')
-    if cursor.fetchone()[0] == 0:
-        productos_ejemplo = [
-            (
-                "Gorro de Invierno Unicornio",
-                2500.00,
-                "Gorro térmico para niñas con diseño de unicornio. Tallas 2-8 años. Material: acrílico suave.",
-                "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-                "Gorros",
-                50,  # stock
-                2000.00,  # precio_mayorista
-                5,  # minimo_mayorista
-                1   # activo
-            ),
-            (
-                "Gorro Polar Dinosaurio",
-                2200.00,
-                "Gorro polar con orejas de dinosaurio. Perfecto para niños aventureros. Tallas 3-10 años.",
-                "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=400&h=400&fit=crop",
-                "Gorros",
-                30,
-                1800.00,
-                5,
-                1
-            ),
-            (
-                "Gorro Navideño Reno",
-                1800.00,
-                "Gorro festivo con diseño de reno navideño. Ideal para las fiestas. Talla única.",
-                "https://images.unsplash.com/photo-1544473244-f6895e69ad8b?w=400&h=400&fit=crop",
-                "Gorros",
-                25,
-                1400.00,
-                10,
-                1
-            ),
-            (
-                "Gorro Térmico Oso Panda",
-                2300.00,
-                "Gorro de invierno súper suave con diseño de oso panda. Material hipoalergénico.",
-                "https://images.unsplash.com/photo-1578761499019-d9d4b2a9c18e?w=400&h=400&fit=crop",
-                "Gorros",
-                40,
-                1900.00,
-                5,
-                1
-            ),
-            (
-                "Gorro Reversible Astronauta",
-                2800.00,
-                "Gorro reversible con diseño espacial. Un lado astronauta, otro lado galaxia. Novedad!",
-                "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=400&fit=crop",
-                "Gorros",
-                15,
-                2300.00,
-                3,
-                1
-            )
-        ]
-        
-        cursor.executemany(
-            '''INSERT INTO productos 
-               (nombre, precio, descripcion, imagen_url, categoria, stock, precio_mayorista, minimo_mayorista, activo) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-            productos_ejemplo
-        )
-    
-    conn.commit()
-    conn.close()
+# Función para inicializar productos de ejemplo
+def init_sample_products():
+    db = SessionLocal()
+    try:
+        # Verificar si hay productos
+        count = db.query(ProductoDB).count()
+        if count == 0:
+            productos_ejemplo = [
+                ProductoDB(
+                    nombre="Gorro Verde Premium",
+                    precio=2500.00,
+                    descripcion="Gorro de alta calidad en color verde. Material premium, muy cómodo.",
+                    imagen_url="https://res.cloudinary.com/dakyybuuz/image/upload/v1/sample_gorros/gorro_verde",
+                    categoria="Gorros",
+                    stock=50,
+                    precio_mayorista=2000.00,
+                    minimo_mayorista=5,
+                    activo=True
+                ),
+                ProductoDB(
+                    nombre="Gorro Azul Especial",
+                    precio=2200.00,
+                    descripcion="Gorro azul de diseño especial. Perfecto para el invierno.",
+                    imagen_url="https://res.cloudinary.com/dakyybuuz/image/upload/v1/sample_gorros/gorro_azul",
+                    categoria="Gorros",
+                    stock=30,
+                    precio_mayorista=1800.00,
+                    minimo_mayorista=5,
+                    activo=True
+                )
+            ]
+            
+            for producto in productos_ejemplo:
+                db.add(producto)
+            db.commit()
+    finally:
+        db.close()
 
-# Inicializar DB al arrancar
-init_db()
+# Inicializar productos de ejemplo al arrancar
+init_sample_products()
 
 @app.get("/")
 def read_root():
     return {
-        "mensaje": "API E-commerce Mayorista v2.0 funcionando correctamente",
-        "features": ["Upload de imágenes", "Gestión de stock", "Precios mayoristas"],
+        "mensaje": "API E-commerce Mayorista v3.0 funcionando correctamente",
+        "features": ["PostgreSQL", "Cloudinary", "Upload de imágenes", "Gestión de stock", "Precios mayoristas"],
         "endpoints": ["/productos", "/pedidos", "/upload-image", "/docs"]
     }
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "version": "2.0.0"}
+    return {"status": "healthy", "version": "3.0.0", "database": "PostgreSQL", "storage": "Cloudinary"}
 
 @app.post("/upload-image", response_model=ImageUploadResponse)
 async def upload_image(file: UploadFile = File(...)):
-    """Subir imagen de producto"""
+    """Subir imagen de producto a Cloudinary"""
     try:
-        # Asegurar que el directorio uploads existe
-        UPLOAD_DIR.mkdir(exist_ok=True)
-        
         # Validar tipo de archivo
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
@@ -208,23 +184,22 @@ async def upload_image(file: UploadFile = File(...)):
         if not file.filename:
             raise HTTPException(status_code=400, detail="El archivo debe tener un nombre")
         
-        # Generar nombre único
-        file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
-        unique_filename = f"{uuid.uuid4()}.{file_extension}"
-        file_path = UPLOAD_DIR / unique_filename
-        
-        # Leer y guardar archivo
+        # Leer el contenido del archivo
         content = await file.read()
-        with file_path.open("wb") as buffer:
-            buffer.write(content)
         
-        # URL para acceder a la imagen
-        image_url = f"/uploads/{unique_filename}"
+        # Subir a Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            content,
+            folder="gorros",
+            public_id=f"producto_{datetime.now().timestamp()}",
+            overwrite=True,
+            resource_type="image"
+        )
         
         return ImageUploadResponse(
-            filename=unique_filename,
-            url=image_url,
-            message="Imagen subida exitosamente"
+            filename=upload_result["public_id"],
+            url=upload_result["secure_url"],
+            message="Imagen subida exitosamente a Cloudinary"
         )
         
     except HTTPException:
@@ -235,78 +210,62 @@ async def upload_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=error_detail)
 
 @app.get("/productos", response_model=List[Producto])
-def get_productos(categoria: Optional[str] = None, activo: bool = True):
+def get_productos(categoria: Optional[str] = None, activo: bool = True, db: Session = Depends(get_db)):
     """Obtener productos con filtros opcionales"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
-        
         # Query base
-        query = '''SELECT id, nombre, precio, descripcion, imagen_url, categoria, 
-                          stock, precio_mayorista, minimo_mayorista, activo 
-                   FROM productos WHERE activo = ?'''
-        params = [activo]
+        query = db.query(ProductoDB).filter(ProductoDB.activo == activo)
         
         # Filtro por categoría
         if categoria:
-            query += ' AND categoria = ?'
-            params.append(categoria)
+            query = query.filter(ProductoDB.categoria == categoria)
         
-        query += ' ORDER BY id DESC'
+        query = query.order_by(ProductoDB.id.desc())
         
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
+        productos_db = query.all()
         
         productos = []
-        for row in rows:
+        for producto_db in productos_db:
             productos.append(Producto(
-                id=row[0],
-                nombre=row[1],
-                precio=row[2],
-                descripcion=row[3],
-                imagen_url=row[4],
-                categoria=row[5],
-                stock=row[6],
-                precio_mayorista=row[7],
-                minimo_mayorista=row[8] or 1,
-                activo=bool(row[9])
+                id=producto_db.id,
+                nombre=producto_db.nombre,
+                precio=producto_db.precio,
+                descripcion=producto_db.descripcion,
+                imagen_url=producto_db.imagen_url,
+                categoria=producto_db.categoria,
+                stock=producto_db.stock,
+                precio_mayorista=producto_db.precio_mayorista,
+                minimo_mayorista=producto_db.minimo_mayorista or 1,
+                activo=producto_db.activo
             ))
         
-        conn.close()
         return productos
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener productos: {str(e)}")
 
 @app.get("/productos/{producto_id}", response_model=Producto)
-def get_producto(producto_id: int):
+def get_producto(producto_id: int, db: Session = Depends(get_db)):
     """Obtener un producto específico"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
+        producto_db = db.query(ProductoDB).filter(ProductoDB.id == producto_id).first()
         
-        cursor.execute('''SELECT id, nombre, precio, descripcion, imagen_url, categoria, 
-                                 stock, precio_mayorista, minimo_mayorista, activo 
-                          FROM productos WHERE id = ?''', (producto_id,))
-        row = cursor.fetchone()
-        
-        if not row:
+        if not producto_db:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         
         producto = Producto(
-            id=row[0],
-            nombre=row[1],
-            precio=row[2],
-            descripcion=row[3],
-            imagen_url=row[4],
-            categoria=row[5],
-            stock=row[6],
-            precio_mayorista=row[7],
-            minimo_mayorista=row[8] or 1,
-            activo=bool(row[9])
+            id=producto_db.id,
+            nombre=producto_db.nombre,
+            precio=producto_db.precio,
+            descripcion=producto_db.descripcion,
+            imagen_url=producto_db.imagen_url,
+            categoria=producto_db.categoria,
+            stock=producto_db.stock,
+            precio_mayorista=producto_db.precio_mayorista,
+            minimo_mayorista=producto_db.minimo_mayorista or 1,
+            activo=producto_db.activo
         )
         
-        conn.close()
         return producto
         
     except HTTPException:
@@ -315,35 +274,28 @@ def get_producto(producto_id: int):
         raise HTTPException(status_code=500, detail=f"Error al obtener producto: {str(e)}")
 
 @app.post("/productos", response_model=Producto)
-def crear_producto(producto: ProductoCreate):
+def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
     """Crear nuevo producto"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
+        producto_db = ProductoDB(
+            nombre=producto.nombre,
+            precio=producto.precio,
+            descripcion=producto.descripcion,
+            imagen_url=producto.imagen_url,
+            categoria=producto.categoria,
+            stock=producto.stock,
+            precio_mayorista=producto.precio_mayorista,
+            minimo_mayorista=producto.minimo_mayorista,
+            activo=producto.activo
+        )
         
-        cursor.execute('''
-            INSERT INTO productos (nombre, precio, descripcion, imagen_url, categoria, 
-                                 stock, precio_mayorista, minimo_mayorista, activo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            producto.nombre,
-            producto.precio,
-            producto.descripcion,
-            producto.imagen_url,
-            producto.categoria,
-            producto.stock,
-            producto.precio_mayorista,
-            producto.minimo_mayorista,
-            producto.activo
-        ))
-        
-        producto_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
+        db.add(producto_db)
+        db.commit()
+        db.refresh(producto_db)
         
         # Retornar el producto creado
         return Producto(
-            id=producto_id,
+            id=producto_db.id,
             **producto.dict()
         )
         
@@ -351,101 +303,77 @@ def crear_producto(producto: ProductoCreate):
         raise HTTPException(status_code=500, detail=f"Error al crear producto: {str(e)}")
 
 @app.get("/categorias")
-def get_categorias():
+def get_categorias(db: Session = Depends(get_db)):
     """Obtener todas las categorías disponibles"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
+        categorias_result = db.query(ProductoDB.categoria).filter(ProductoDB.activo == True).distinct().order_by(ProductoDB.categoria).all()
+        categorias = [categoria[0] for categoria in categorias_result if categoria[0]]
         
-        cursor.execute('SELECT DISTINCT categoria FROM productos WHERE activo = 1 ORDER BY categoria')
-        categorias = [row[0] for row in cursor.fetchall()]
-        
-        conn.close()
         return {"categorias": categorias}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener categorías: {str(e)}")
 
 @app.post("/pedidos", response_model=PedidoResponse)
-def crear_pedido(pedido: PedidoRequest):
+def crear_pedido(pedido: PedidoRequest, db: Session = Depends(get_db)):
     """Crear un nuevo pedido"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
+        pedido_db = PedidoDB(
+            nombre=pedido.nombre,
+            telefono=pedido.telefono,
+            producto_id=pedido.producto_id,
+            producto_nombre=pedido.producto_nombre,
+            cantidad=pedido.cantidad,
+            comentarios=pedido.comentarios
+        )
         
-        cursor.execute('''
-            INSERT INTO pedidos (nombre, telefono, producto_id, producto_nombre, cantidad, comentarios)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            pedido.nombre,
-            pedido.telefono,
-            pedido.producto_id,
-            pedido.producto_nombre,
-            pedido.cantidad,
-            pedido.comentarios
-        ))
-        
-        pedido_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
+        db.add(pedido_db)
+        db.commit()
+        db.refresh(pedido_db)
         
         return PedidoResponse(
-            id=pedido_id,
-            mensaje=f"Pedido #{pedido_id} registrado correctamente. Nos contactaremos pronto!"
+            id=pedido_db.id,
+            mensaje=f"Pedido #{pedido_db.id} registrado correctamente. Nos contactaremos pronto!"
         )
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear pedido: {str(e)}")
 
 @app.get("/pedidos")
-def get_pedidos():
+def get_pedidos(db: Session = Depends(get_db)):
     """Obtener todos los pedidos (para uso interno)"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT id, nombre, telefono, producto_nombre, cantidad, comentarios, fecha_pedido, estado
-            FROM pedidos ORDER BY fecha_pedido DESC
-        ''')
-        rows = cursor.fetchall()
+        pedidos_db = db.query(PedidoDB).order_by(PedidoDB.fecha_pedido.desc()).all()
         
         pedidos = []
-        for row in rows:
+        for pedido_db in pedidos_db:
             pedidos.append({
-                "id": row[0],
-                "nombre": row[1],
-                "telefono": row[2],
-                "producto_nombre": row[3],
-                "cantidad": row[4],
-                "comentarios": row[5],
-                "fecha_pedido": row[6],
-                "estado": row[7]
+                "id": pedido_db.id,
+                "nombre": pedido_db.nombre,
+                "telefono": pedido_db.telefono,
+                "producto_nombre": pedido_db.producto_nombre,
+                "cantidad": pedido_db.cantidad,
+                "comentarios": pedido_db.comentarios,
+                "fecha_pedido": pedido_db.fecha_pedido.isoformat() if pedido_db.fecha_pedido else None,
+                "estado": pedido_db.estado
             })
         
-        conn.close()
         return {"pedidos": pedidos}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener pedidos: {str(e)}")
 
 @app.post("/actualizar-imagen-producto")
-def actualizar_imagen_producto(producto_id: int, imagen_url: str):
+def actualizar_imagen_producto(producto_id: int, imagen_url: str, db: Session = Depends(get_db)):
     """Actualizar la URL de imagen de un producto (para uso interno)"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
+        producto_db = db.query(ProductoDB).filter(ProductoDB.id == producto_id).first()
         
-        cursor.execute(
-            "UPDATE productos SET imagen_url = ? WHERE id = ?",
-            (imagen_url, producto_id)
-        )
-        
-        if cursor.rowcount == 0:
+        if not producto_db:
             raise HTTPException(status_code=404, detail=f"Producto con ID {producto_id} no encontrado")
         
-        conn.commit()
-        conn.close()
+        producto_db.imagen_url = imagen_url
+        db.commit()
         
         return {"message": f"Imagen del producto {producto_id} actualizada exitosamente", "nueva_url": imagen_url}
         
@@ -455,24 +383,18 @@ def actualizar_imagen_producto(producto_id: int, imagen_url: str):
         raise HTTPException(status_code=500, detail=f"Error al actualizar imagen: {str(e)}")
 
 @app.delete("/productos/{producto_id}")
-def eliminar_producto(producto_id: int):
+def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
     """Eliminar un producto por ID"""
     try:
-        conn = sqlite3.connect('ecommerce.db')
-        cursor = conn.cursor()
-        
         # Verificar si el producto existe
-        cursor.execute("SELECT * FROM productos WHERE id = ?", (producto_id,))
-        producto = cursor.fetchone()
+        producto_db = db.query(ProductoDB).filter(ProductoDB.id == producto_id).first()
         
-        if not producto:
+        if not producto_db:
             raise HTTPException(status_code=404, detail=f"Producto con ID {producto_id} no encontrado")
         
         # Eliminar el producto
-        cursor.execute("DELETE FROM productos WHERE id = ?", (producto_id,))
-        
-        conn.commit()
-        conn.close()
+        db.delete(producto_db)
+        db.commit()
         
         return {"message": f"Producto {producto_id} eliminado exitosamente"}
         
