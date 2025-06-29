@@ -18,6 +18,10 @@ app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 # Configuración de PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://ecommerce_user:nq43MAJZqF4v9sx6rVK0QvmKbY0atqTr@dpg-d1gqouvfte5s7390jmf0-a.oregon-postgres.render.com/ecommerce_db_s72g")
 
+# Para psycopg3, necesitamos especificar el driver
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
