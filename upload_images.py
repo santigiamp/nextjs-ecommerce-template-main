@@ -10,7 +10,7 @@ import sqlite3
 from pathlib import Path
 
 # Configuración
-API_URL = "https://ecommerce-mayorista.onrender.com"  # URL de Render en producción
+API_URL = "https://nextjs-ecommerce-template-main.onrender.com"  # URL de Render en producción
 IMAGES_DIR = "gorros_images"  # Directorio con las imágenes de gorros
 
 # Lista de productos de gorros para actualizar
@@ -25,9 +25,10 @@ GORROS_DATA = [
 def upload_image(file_path):
     """Subir imagen al backend usando el endpoint /upload-image"""
     try:
+        filename = os.path.basename(file_path)
         with open(file_path, 'rb') as file:
-            files = {'file': file}
-            response = requests.post(f"{API_URL}/upload-image", files=files)
+            files = {'file': (filename, file, 'image/jpeg')}
+            response = requests.post(f"{API_URL}/upload-image", files=files, timeout=30)
             response.raise_for_status()
             return response.json()
     except Exception as e:
