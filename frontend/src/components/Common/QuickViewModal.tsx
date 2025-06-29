@@ -33,8 +33,15 @@ const QuickViewModal = () => {
   const handleAddToCart = () => {
     dispatch(
       addItemToCart({
-        ...product,
+        id: product.id,
+        title: product.nombre,
+        price: product.precio,
+        discountedPrice: product.precio_mayorista || product.precio,
         quantity,
+        imgs: {
+          thumbnails: [product.imagen_url],
+          previews: [product.imagen_url],
+        },
       })
     );
 
