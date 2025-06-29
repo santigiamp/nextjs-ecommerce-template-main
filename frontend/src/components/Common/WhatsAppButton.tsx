@@ -2,13 +2,9 @@
 import React from "react";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "5491123456789"; // Reemplaza con tu número de WhatsApp
-  const message = "Hola! Me interesa conocer más sobre sus gorros 🧢";
-  
   const handleWhatsAppClick = () => {
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
+    // Por ahora solo muestra un mensaje, sin abrir WhatsApp
+    alert("¡Pronto podrás contactarnos por WhatsApp!");
   };
 
   return (
@@ -30,7 +26,7 @@ const WhatsAppButton = () => {
       
       {/* Tooltip que aparece al hacer hover */}
       <span className="absolute right-16 bg-gray-800 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-        ¡Consulta por WhatsApp!
+        Próximamente WhatsApp
       </span>
     </button>
   );
