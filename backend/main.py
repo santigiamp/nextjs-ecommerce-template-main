@@ -454,6 +454,33 @@ def actualizar_imagen_producto(producto_id: int, imagen_url: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al actualizar imagen: {str(e)}")
 
+@app.delete("/productos/{producto_id}")
+def eliminar_producto(producto_id: int):
+    """Eliminar un producto por ID"""
+    try:
+        conn = sqlite3.connect('ecommerce.db')
+        cursor = conn.cursor()
+        
+        # Verificar si el producto existe
+        cursor.execute("SELECT * FROM productos WHERE id = ?", (producto_id,))
+        producto = cursor.fetchone()
+        
+        if not producto:
+            raise HTTPException(status_code=404, detail=f"Producto con ID {producto_id} no encontrado")
+        
+        # Eliminar el producto
+        cursor.execute("DELETE FROM productos WHERE id = ?", (producto_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return {"message": f"Producto {producto_id} eliminado exitosamente"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar producto: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
