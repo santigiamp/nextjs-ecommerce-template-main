@@ -23,8 +23,15 @@ const SingleItem = ({ item }: { item: Product }) => {
   const handleAddToCart = () => {
     dispatch(
       addItemToCart({
-        ...item,
+        id: item.id,
+        title: item.nombre,
+        price: item.precio,
+        discountedPrice: item.precio_mayorista || item.precio,
         quantity: 1,
+        imgs: {
+          thumbnails: [item.imagen_url],
+          previews: [item.imagen_url],
+        },
       })
     );
   };
@@ -32,9 +39,16 @@ const SingleItem = ({ item }: { item: Product }) => {
   const handleItemToWishList = () => {
     dispatch(
       addItemToWishlist({
-        ...item,
-        status: "available",
+        id: item.id,
+        title: item.nombre,
+        price: item.precio,
+        discountedPrice: item.precio_mayorista || item.precio,
         quantity: 1,
+        status: "available",
+        imgs: {
+          thumbnails: [item.imagen_url],
+          previews: [item.imagen_url],
+        },
       })
     );
   };
