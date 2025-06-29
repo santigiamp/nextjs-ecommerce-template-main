@@ -429,6 +429,31 @@ def get_pedidos():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener pedidos: {str(e)}")
 
+@app.post("/actualizar-imagen-producto")
+def actualizar_imagen_producto(producto_id: int, imagen_url: str):
+    """Actualizar la URL de imagen de un producto (para uso interno)"""
+    try:
+        conn = sqlite3.connect('ecommerce.db')
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            "UPDATE productos SET imagen_url = ? WHERE id = ?",
+            (imagen_url, producto_id)
+        )
+        
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail=f"Producto con ID {producto_id} no encontrado")
+        
+        conn.commit()
+        conn.close()
+        
+        return {"message": f"Imagen del producto {producto_id} actualizada exitosamente", "nueva_url": imagen_url}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al actualizar imagen: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
