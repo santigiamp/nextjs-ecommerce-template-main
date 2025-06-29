@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
@@ -10,9 +10,12 @@ import { updateproductDetails } from "@/redux/features/product-details";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
+import OrderForm from "@/components/OrderForm";
+import toast from "react-hot-toast";
 
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
+  const [showOrderForm, setShowOrderForm] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -45,10 +48,22 @@ const ProductItem = ({ item }: { item: Product }) => {
     dispatch(updateproductDetails({ ...item }));
   };
 
+  // Obtener URL de imagen (priorizar la de la API, fallback a imagen por defecto)
+  const imageUrl = item.imagen_url || '/images/products/product-1-bg-1.png';
+  
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
-        <Image src={item.imgs.previews[0]} alt="" width={250} height={250} />
+        <Image 
+          src={imageUrl} 
+          alt={item.nombre} 
+          width={250} 
+          height={250}
+          className="object-cover"
+          onError={(e) => {
+            e.currentTarget.src = '/images/products/product-1-bg-1.png';
+          }}
+        />
 
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
           <button
@@ -84,10 +99,10 @@ const ProductItem = ({ item }: { item: Product }) => {
           </button>
 
           <button
-            onClick={() => handleAddToCart()}
-            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
+            onClick={() => setShowOrderForm(true)}
+            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-green-600 text-white ease-out duration-200 hover:bg-green-700"
           >
-            Add to cart
+            Pedir
           </button>
 
           <button
@@ -149,20 +164,46 @@ const ProductItem = ({ item }: { item: Product }) => {
           />
         </div>
 
-        <p className="text-custom-sm">({item.reviews})</p>
+        <p className="text-custom-sm">(5)</p>
       </div>
 
       <h3
         className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
-        <Link href="/shop-details"> {item.title} </Link>
+        <Link href="/shop-details"> {item.nombre} </Link>
       </h3>
 
+      <div className="mb-2">
+        <p className="text-sm text-gray-600 mb-1">{item.categoria}</p>
+        {item.stock && (
+          <p className="text-xs text-green-600">Stock: {item.stock}</p>
+        )}
+      </div>
+
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">${item.discountedPrice}</span>
-        <span className="text-dark-4 line-through">${item.price}</span>
+        <span className="text-dark">${item.precio}</span>
+        {item.precio_mayorista && (
+          <span className="text-sm text-blue-600">
+            Mayorista: ${item.precio_mayorista} (mín. {item.minimo_mayorista})
+          </span>
+        )}
       </span>
+
+      {showOrderForm && (
+        <OrderForm
+          product={{
+            id: item.id,
+            nombre: item.nombre,
+            precio: item.precio
+          }}
+          onClose={() => setShowOrderForm(false)}
+          onSuccess={(message) => {
+            toast.success(message);
+            setShowOrderForm(false);
+          }}
+        />
+      )}
     </div>
   );
 };

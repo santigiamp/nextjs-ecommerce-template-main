@@ -6,15 +6,18 @@ import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
 import CustomSelect from "../ShopWithSidebar/CustomSelect";
 
-import shopData from "../Shop/shopData";
+import { useProducts } from "@/hooks/useProducts";
 
 const ShopWithoutSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  
+  const { products, loading, error } = useProducts(selectedCategory);
 
   const options = [
-    { label: "Latest Products", value: "0" },
-    { label: "Best Selling", value: "1" },
-    { label: "Old Products", value: "2" },
+    { label: "Todos los productos", value: "0" },
+    { label: "Gorros", value: "1" },
+    { label: "Ropa", value: "2" },
   ];
 
   return (
@@ -35,8 +38,8 @@ const ShopWithoutSidebar = () => {
                     <CustomSelect options={options} />
 
                     <p>
-                      Showing <span className="text-dark">9 of 50</span>{" "}
-                      Products
+                      Mostrando <span className="text-dark">{products.length}</span>{" "}
+                      Productos
                     </p>
                   </div>
 
@@ -122,21 +125,35 @@ const ShopWithoutSidebar = () => {
               </div>
 
               {/* <!-- Products Grid Tab Content Start --> */}
-              <div
-                className={`${
-                  productStyle === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7.5 gap-y-9"
-                    : "flex flex-col gap-7.5"
-                }`}
-              >
-                {shopData.map((item, key) =>
-                  productStyle === "grid" ? (
-                    <SingleGridItem item={item} key={key} />
-                  ) : (
-                    <SingleListItem item={item} key={key} />
-                  )
-                )}
-              </div>
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-lg">Cargando productos...</div>
+                </div>
+              ) : error ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-lg text-red-500">Error: {error}</div>
+                </div>
+              ) : products.length === 0 ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-lg">No se encontraron productos.</div>
+                </div>
+              ) : (
+                <div
+                  className={`${
+                    productStyle === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7.5 gap-y-9"
+                      : "flex flex-col gap-7.5"
+                  }`}
+                >
+                  {products.map((item, key) =>
+                    productStyle === "grid" ? (
+                      <SingleGridItem item={item} key={key} />
+                    ) : (
+                      <SingleListItem item={item} key={key} />
+                    )
+                  )}
+                </div>
+              )}
               {/* <!-- Products Grid Tab Content End --> */}
 
               {/* <!-- Products Pagination Start --> */}
