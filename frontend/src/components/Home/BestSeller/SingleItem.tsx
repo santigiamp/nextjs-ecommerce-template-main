@@ -100,7 +100,7 @@ const SingleItem = ({ item }: { item: Product }) => {
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
             <span className="text-dark">${item.precio_mayorista || item.precio}</span>
-            <span className="text-dark-4 line-through">${item.price}</span>
+            <span className="text-dark-4 line-through">${item.precio}</span>
           </span>
         </div>
 
