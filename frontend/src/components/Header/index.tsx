@@ -34,9 +34,13 @@ const Header = () => {
           {/* Logo */}
           <Link className="flex-shrink-0" href="/shop-with-sidebar">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">D</span>
-              </div>
+              <Image
+                src="/images/logo/ChatGPT Image 30 jun 2025, 17_26_11.png"
+                alt="Distribuidora Alegría Logo"
+                width={60}
+                height={60}
+                className="rounded-lg"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Distribuidora Alegría</h1>
                 <p className="text-xs text-gray-500">Mayorista de Juguetes</p>
@@ -48,13 +52,13 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/shop-with-sidebar"
-              className="font-medium text-gray-700 hover:text-orange-500 transition-colors"
+              className="font-medium text-gray-700 hover:text-orange-500 transition-colors px-4 py-2 rounded-lg hover:bg-orange-50"
             >
               Catálogo
             </Link>
             <Link
               href="/signin"
-              className="flex items-center gap-2 font-medium text-gray-700 hover:text-orange-500 transition-colors"
+              className="flex items-center gap-2 font-medium text-white bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 transition-all px-4 py-2 rounded-lg shadow-md hover:shadow-lg"
             >
               <svg
                 width="20"

@@ -67,7 +67,7 @@ const ProductItem = ({ item }: { item: Product }) => {
   
   return (
     <div className="group">
-      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
+      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 via-orange-50 to-yellow-50 min-h-[270px] mb-4 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300">
         <Image 
           src={imageUrl} 
           alt={item.nombre} 
@@ -87,7 +87,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             }}
             id="newOne"
             aria-label="button for quick view"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-gray-600 bg-white hover:text-blue-600 hover:bg-blue-50"
           >
             <svg
               className="fill-current"
@@ -114,7 +114,7 @@ const ProductItem = ({ item }: { item: Product }) => {
 
           <button
             onClick={() => setShowOrderForm(true)}
-            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-green-600 text-white ease-out duration-200 hover:bg-green-700"
+            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-gradient-to-r from-green-500 to-green-600 text-white ease-out duration-200 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg"
           >
             Pedir
           </button>
@@ -123,7 +123,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             onClick={() => handleItemToWishList()}
             aria-label="button for favorite select"
             id="favOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-gray-600 bg-white hover:text-yellow-600 hover:bg-yellow-50"
           >
             <svg
               className="fill-current"
@@ -182,7 +182,7 @@ const ProductItem = ({ item }: { item: Product }) => {
       </div>
 
       <h3
-        className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
+        className="font-medium text-gray-800 ease-out duration-200 hover:text-orange-600 mb-1.5 cursor-pointer"
         onClick={() => handleProductDetails()}
       >
         <Link href="/shop-details"> {item.nombre} </Link>
@@ -196,9 +196,9 @@ const ProductItem = ({ item }: { item: Product }) => {
       </div>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">${item.precio}</span>
+        <span className="text-gray-800 bg-orange-100 px-2 py-1 rounded-md">${item.precio}</span>
         {item.precio_mayorista && (
-          <span className="text-sm text-blue-600">
+          <span className="text-sm text-green-700 bg-green-50 px-2 py-1 rounded-md">
             Mayorista: ${item.precio_mayorista} (mín. {item.minimo_mayorista})
           </span>
         )}
