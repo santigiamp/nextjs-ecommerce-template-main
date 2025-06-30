@@ -25,40 +25,20 @@ const ShopWithSidebar = () => {
   };
 
   const options = [
-    { label: "Latest Products", value: "0" },
-    { label: "Best Selling", value: "1" },
-    { label: "Old Products", value: "2" },
+    { label: "Productos Más Recientes", value: "0" },
+    { label: "Más Vendidos", value: "1" },
+    { label: "Productos Antiguos", value: "2" },
   ];
 
   const categories = [
     {
-      name: "Desktop",
-      products: 10,
+      name: "Gorros",
+      products: 21,
       isRefined: true,
     },
     {
-      name: "Laptop",
-      products: 12,
-      isRefined: false,
-    },
-    {
-      name: "Monitor",
-      products: 30,
-      isRefined: false,
-    },
-    {
-      name: "UPS",
-      products: 23,
-      isRefined: false,
-    },
-    {
-      name: "Phone",
-      products: 10,
-      isRefined: false,
-    },
-    {
-      name: "Watch",
-      products: 13,
+      name: "Juguetes",
+      products: 0,
       isRefined: false,
     },
   ];
@@ -100,8 +80,8 @@ const ShopWithSidebar = () => {
   return (
     <>
       <Breadcrumb
-        title={"Explore All Products"}
-        pages={["shop", "/", "shop with sidebar"]}
+        title={"Catálogo de Productos"}
+        pages={["catálogo", "/", "mayorista"]}
       />
       <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-[#f3f4f6]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
@@ -184,8 +164,8 @@ const ShopWithSidebar = () => {
                     <CustomSelect options={options} />
 
                     <p>
-                      Showing <span className="text-dark">9 of 50</span>{" "}
-                      Products
+                      Mostrando <span className="text-dark">21 productos</span>{" "}
+                      disponibles
                     </p>
                   </div>
 
