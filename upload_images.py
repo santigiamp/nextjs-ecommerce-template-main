@@ -12,6 +12,22 @@ from pathlib import Path
 API_URL = "https://nextjs-ecommerce-template-main.onrender.com"  # URL de Render en producción
 IMAGES_DIR = "gorros_images"  # Directorio con las imágenes de gorros
 
+# Primero eliminar productos de ejemplo
+def delete_sample_products():
+    try:
+        response = requests.get(f"{API_URL}/productos")
+        products = response.json()
+        for product in products:
+            if 'sample_gorros' in product['imagen_url']:
+                print(f"Eliminando producto de ejemplo: {product['nombre']}")
+                delete_response = requests.delete(f"{API_URL}/productos/{product['id']}")
+                if delete_response.status_code == 200:
+                    print(f"✅ Eliminado producto ID {product['id']}")
+                else:
+                    print(f"❌ Error eliminando producto ID {product['id']}")
+    except Exception as e:
+        print(f"Error eliminando productos de ejemplo: {e}")
+
 # Lista de nombres descriptivos para los gorros
 GORROS_NOMBRES = [
     "Gorro Verde Premium",
@@ -79,7 +95,7 @@ def main():
     if not os.path.exists(IMAGES_DIR):
         print(f"Creando directorio {IMAGES_DIR}/")
         os.makedirs(IMAGES_DIR)
-        print(f"Por favor, coloca las 20 imágenes de gorros en {IMAGES_DIR}/ y ejecuta el script nuevamente.")
+        print(f"Por favor, coloca las 21 imágenes de gorros en {IMAGES_DIR}/ y ejecuta el script nuevamente.")
         return
     
     # Obtener lista de imágenes
@@ -97,11 +113,16 @@ def main():
     try:
         response = requests.get(f"{API_URL}/health")
         response.raise_for_status()
-        print("✅ Conexión con backend establecida")
+        backend_info = response.json()
+        print(f"✅ Conexión con backend establecida - {backend_info}")
     except:
         print("❌ No se puede conectar al backend. Asegúrate de que esté ejecutándose.")
         print(f"URL configurada: {API_URL}")
         return
+    
+    # Eliminar productos de ejemplo
+    print("\n🧹 Eliminando productos de ejemplo...")
+    delete_sample_products()
     
     # Subir imágenes y crear productos
     created_count = 0
