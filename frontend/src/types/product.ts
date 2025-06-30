@@ -25,6 +25,7 @@ export type ProductCreate = {
 
 export type PedidoRequest = {
   nombre: string;
+  email: string;
   telefono: string;
   producto_id: number;
   producto_nombre: string;
