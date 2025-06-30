@@ -21,8 +21,8 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
-        stickyMenu && "shadow"
+      className={`fixed left-0 top-0 w-full z-9999 bg-gradient-to-r from-orange-100 via-yellow-50 to-green-100 transition-all ease-in-out duration-300 ${
+        stickyMenu && "shadow-lg"
       }`}
     >
       <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
@@ -80,7 +80,7 @@ const Header = () => {
                   fill="currentColor"
                 />
               </svg>
-              Iniciar Sesión
+              Login
             </Link>
           </nav>
         </div>

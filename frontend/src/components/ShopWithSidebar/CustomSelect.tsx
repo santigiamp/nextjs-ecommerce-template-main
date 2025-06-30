@@ -37,20 +37,20 @@ const CustomSelect = ({ options }) => {
       ref={selectRef}
     >
       <div
-        className={`select-selected whitespace-nowrap ${
+        className={`select-selected whitespace-nowrap bg-gradient-to-r from-green-100 to-blue-100 border-2 border-green-300 rounded-lg px-3 py-2 cursor-pointer hover:from-green-200 hover:to-blue-200 transition-all ${
           isOpen ? "select-arrow-active" : ""
         }`}
         onClick={toggleDropdown}
       >
         {selectedOption.label}
       </div>
-      <div className={`select-items ${isOpen ? "" : "select-hide"}`}>
+      <div className={`select-items bg-white border-2 border-green-300 rounded-lg shadow-lg mt-1 ${isOpen ? "block" : "hidden"}`}>
         {options.slice(1).map((option, index) => (
           <div
             key={index}
             onClick={() => handleOptionClick(option)}
-            className={`select-item ${
-              selectedOption === option ? "same-as-selected" : ""
+            className={`select-item px-3 py-2 cursor-pointer hover:bg-gradient-to-r hover:from-yellow-100 hover:to-orange-100 transition-all ${
+              selectedOption === option ? "bg-gradient-to-r from-green-200 to-blue-200 font-medium" : ""
             }`}
           >
             {option.label}

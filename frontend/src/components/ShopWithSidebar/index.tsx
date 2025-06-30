@@ -104,21 +104,21 @@ const ShopWithSidebar = () => {
         title={"Catálogo de Productos"}
         pages={["catálogo", "/", "mayorista"]}
       />
-      <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-gradient-to-br from-blue-50 via-orange-50 to-yellow-50">
+      <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
             <div
               className={`sidebar-content fixed xl:z-1 z-9999 left-0 top-0 xl:translate-x-0 xl:static max-w-[310px] xl:max-w-[270px] w-full ease-out duration-200 ${
                 productSidebar
-                  ? "translate-x-0 bg-white p-5 h-screen overflow-y-auto"
-                  : "-translate-x-full"
+                  ? "translate-x-0 bg-gradient-to-b from-blue-50 to-green-50 p-5 h-screen overflow-y-auto"
+                  : "-translate-x-full xl:bg-gradient-to-b xl:from-blue-50 xl:to-green-50 xl:p-5 xl:rounded-lg"
               }`}
             >
               <button
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
-                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-white shadow-1 ${
+                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-gradient-to-r from-orange-400 to-yellow-400 shadow-lg text-white ${
                   stickyMenu
                     ? "lg:top-20 sm:top-34.5 top-35"
                     : "lg:top-24 sm:top-39 top-37"
@@ -166,7 +166,7 @@ const ShopWithSidebar = () => {
 
             {/* // <!-- Content Start --> */}
             <div className="xl:max-w-[870px] w-full">
-              <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6 border-l-4 border-gradient-to-b border-orange-400">
+              <div className="rounded-lg bg-gradient-to-r from-white to-orange-50 shadow-lg pl-3 pr-2.5 py-2.5 mb-6 border-l-4 border-orange-500">
                 <div className="flex items-center justify-between">
                   {/* <!-- top bar left --> */}
                   <div className="flex flex-wrap items-center gap-4">
