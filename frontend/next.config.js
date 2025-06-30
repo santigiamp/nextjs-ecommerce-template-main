@@ -8,7 +8,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'nextjs-ecommerce-template-main.onrender.com',
+        hostname: '*.up.railway.app',
       },
       {
         protocol: 'https',

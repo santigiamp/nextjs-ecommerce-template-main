@@ -1,6 +1,6 @@
 import { Product, ProductCreate, PedidoRequest, PedidoResponse, ImageUploadResponse } from '@/types/product';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL_PRODUCTION || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Función helper para manejar respuestas
 async function handleResponse<T>(response: Response): Promise<T> {
