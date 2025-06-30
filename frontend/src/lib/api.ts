@@ -1,6 +1,11 @@
 import { Product, ProductCreate, PedidoRequest, PedidoResponse, ImageUploadResponse } from '@/types/product';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL_PRODUCTION || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+let API_URL = process.env.NEXT_PUBLIC_API_URL_PRODUCTION || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+// Asegurar que la URL tenga protocolo
+if (API_URL && !API_URL.startsWith('http://') && !API_URL.startsWith('https://')) {
+  API_URL = 'https://' + API_URL;
+}
 console.log('API_URL being used:', API_URL);
 console.log('Environment variables:', {
   NEXT_PUBLIC_API_URL_PRODUCTION: process.env.NEXT_PUBLIC_API_URL_PRODUCTION,
