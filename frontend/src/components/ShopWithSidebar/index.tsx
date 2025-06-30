@@ -111,15 +111,6 @@ const ShopWithSidebar = () => {
         }}
       >
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          {/* Banner colorido para verificar que los cambios se aplicaron */}
-          <div 
-            className="mb-6 p-4 rounded-lg text-center text-white font-bold text-lg"
-            style={{
-              background: 'linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #ca8a04 50%, #16a34a 75%, #2563eb 100%)'
-            }}
-          >
-            🎉 ¡Distribuidora Alegría - Mayorista de Juguetes y Gorros! 🎈
-          </div>
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
             <div
