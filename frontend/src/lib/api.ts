@@ -1,14 +1,34 @@
 import { Product, ProductCreate, PedidoRequest, PedidoResponse, ImageUploadResponse } from '@/types/product';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL_PRODUCTION || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+console.log('API_URL being used:', API_URL);
+console.log('Environment variables:', {
+  NEXT_PUBLIC_API_URL_PRODUCTION: process.env.NEXT_PUBLIC_API_URL_PRODUCTION,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+});
 
 // Función helper para manejar respuestas
 async function handleResponse<T>(response: Response): Promise<T> {
+  console.log('API Response status:', response.status, response.statusText);
+  console.log('API Response URL:', response.url);
+  
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-    throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('API Error response:', errorText);
+    const errorData = { detail: `Error ${response.status}: ${response.statusText}. Response: ${errorText}` };
+    throw new Error(errorData.detail);
   }
-  return response.json();
+  
+  const responseText = await response.text();
+  console.log('API Success response:', responseText);
+  
+  try {
+    return JSON.parse(responseText);
+  } catch (parseError) {
+    console.error('JSON Parse Error:', parseError);
+    console.error('Response that failed to parse:', responseText);
+    throw new Error(`Failed to parse JSON response: ${parseError}`);
+  }
 }
 
 // API de Productos
