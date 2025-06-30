@@ -16,6 +16,7 @@ interface OrderFormProps {
 const OrderForm: React.FC<OrderFormProps> = ({ product, onClose, onSuccess }) => {
   const [formData, setFormData] = useState<PedidoRequest>({
     nombre: "",
+    email: "",
     telefono: "",
     producto_id: product.id,
     producto_nombre: product.nombre,
@@ -106,6 +107,22 @@ const OrderForm: React.FC<OrderFormProps> = ({ product, onClose, onSuccess }) =>
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                 placeholder="Tu nombre completo"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email de contacto *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
+                placeholder="tucorreo@ejemplo.com"
               />
             </div>
 
