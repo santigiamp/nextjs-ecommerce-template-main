@@ -9,7 +9,7 @@ import requests
 from pathlib import Path
 
 # Configuración
-API_URL = "https://nextjs-ecommerce-template-main.onrender.com"  # URL de Render en producción
+API_URL = "https://nextjs-ecommerce-template-main-production.up.railway.app"  # URL de Railway en producción
 IMAGES_DIR = "gorros_images"  # Directorio con las imágenes de gorros
 
 # Primero eliminar productos de ejemplo
