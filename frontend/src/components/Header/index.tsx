@@ -21,9 +21,12 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 bg-gradient-to-r from-orange-100 via-yellow-50 to-green-100 transition-all ease-in-out duration-300 ${
+      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${
         stickyMenu && "shadow-lg"
       }`}
+      style={{
+        background: 'linear-gradient(90deg, #fed7aa 0%, #fef3c7 50%, #dcfce7 100%)'
+      }}
     >
       <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
         <div
@@ -43,7 +46,7 @@ const Header = () => {
               />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Distribuidora Alegría</h1>
-                <p className="text-xs text-gray-500">Mayorista de Juguetes</p>
+                <p className="text-xs" style={{ color: '#dc2626' }}>🌈 Mayorista de Juguetes 🎨</p>
               </div>
             </div>
           </Link>
@@ -58,7 +61,10 @@ const Header = () => {
             </Link>
             <Link
               href="/signin"
-              className="flex items-center gap-2 font-medium text-white bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 transition-all px-4 py-2 rounded-lg shadow-md hover:shadow-lg"
+              className="flex items-center gap-2 font-medium text-white transition-all px-4 py-2 rounded-lg shadow-md hover:shadow-lg"
+              style={{
+                background: 'linear-gradient(90deg, #f97316 0%, #eab308 100%)'
+              }}
             >
               <svg
                 width="20"

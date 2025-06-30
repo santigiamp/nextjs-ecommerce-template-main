@@ -104,8 +104,22 @@ const ShopWithSidebar = () => {
         title={"Catálogo de Productos"}
         pages={["catálogo", "/", "mayorista"]}
       />
-      <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-gradient-to-br from-orange-200 via-yellow-100 to-green-200">
+      <section 
+        className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28"
+        style={{
+          background: 'linear-gradient(135deg, #fed7aa 0%, #fef3c7 50%, #bbf7d0 100%)'
+        }}
+      >
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
+          {/* Banner colorido para verificar que los cambios se aplicaron */}
+          <div 
+            className="mb-6 p-4 rounded-lg text-center text-white font-bold text-lg"
+            style={{
+              background: 'linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #ca8a04 50%, #16a34a 75%, #2563eb 100%)'
+            }}
+          >
+            🎉 ¡Distribuidora Alegría - Mayorista de Juguetes y Gorros! 🎈
+          </div>
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
             <div
@@ -166,7 +180,13 @@ const ShopWithSidebar = () => {
 
             {/* // <!-- Content Start --> */}
             <div className="xl:max-w-[870px] w-full">
-              <div className="rounded-lg bg-gradient-to-r from-white to-orange-50 shadow-lg pl-3 pr-2.5 py-2.5 mb-6 border-l-4 border-orange-500">
+              <div 
+                className="rounded-lg shadow-lg pl-3 pr-2.5 py-2.5 mb-6 border-l-4"
+                style={{
+                  background: 'linear-gradient(90deg, #ffffff 0%, #fed7aa 100%)',
+                  borderLeftColor: '#f97316'
+                }}
+              >
                 <div className="flex items-center justify-between">
                   {/* <!-- top bar left --> */}
                   <div className="flex flex-wrap items-center gap-4">
