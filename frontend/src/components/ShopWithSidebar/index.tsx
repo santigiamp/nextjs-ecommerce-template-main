@@ -3,18 +3,16 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
 import CategoryDropdown from "./CategoryDropdown";
-import GenderDropdown from "./GenderDropdown";
-import SizeDropdown from "./SizeDropdown";
-import ColorsDropdwon from "./ColorsDropdwon";
-import PriceDropdown from "./PriceDropdown";
-import shopData from "../Shop/shopData";
-import SingleGridItem from "../Shop/SingleGridItem";
-import SingleListItem from "../Shop/SingleListItem";
+import { getShopData } from "../Shop/shopData";
+import { Product } from "@/types/product";
+import ProductItem from "../Common/ProductItem";
 
 const ShopWithSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
   const [productSidebar, setProductSidebar] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleStickyMenu = () => {
     if (window.scrollY >= 80) {
@@ -30,18 +28,24 @@ const ShopWithSidebar = () => {
     { label: "Productos Antiguos", value: "2" },
   ];
 
-  const categories = [
-    {
-      name: "Gorros",
-      products: 21,
-      isRefined: true,
-    },
-    {
-      name: "Juguetes",
-      products: 0,
-      isRefined: false,
-    },
-  ];
+  // Generar categorías dinámicamente basadas en los productos cargados
+  const categories = React.useMemo(() => {
+    const gorrosCount = products.filter(p => p.categoria === "Gorros").length;
+    const juguetesCount = products.filter(p => p.categoria === "Juguetes").length;
+    
+    return [
+      {
+        name: "Gorros",
+        products: gorrosCount,
+        isRefined: true,
+      },
+      {
+        name: "Juguetes",
+        products: juguetesCount,
+        isRefined: false,
+      },
+    ];
+  }, [products]);
 
   const genders = [
     {
@@ -76,6 +80,23 @@ const ShopWithSidebar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   });
+
+  // Cargar productos desde la API
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await getShopData();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   return (
     <>
@@ -129,27 +150,15 @@ const ShopWithSidebar = () => {
               <form onSubmit={(e) => e.preventDefault()}>
                 <div className="flex flex-col gap-6">
                   {/* <!-- filter box --> */}
-                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                  <div className="bg-white shadow-1 rounded-lg py-4 px-5 border-l-4 border-blue-400">
                     <div className="flex items-center justify-between">
-                      <p>Filters:</p>
-                      <button className="text-blue">Clean All</button>
+                      <p className="font-medium text-gray-800">Filtros:</p>
+                      <button className="text-orange-600 hover:text-orange-700 font-medium px-3 py-1 rounded-md hover:bg-orange-50 transition-colors">Limpiar Todo</button>
                     </div>
                   </div>
 
                   {/* <!-- category box --> */}
                   <CategoryDropdown categories={categories} />
-
-                  {/* <!-- gender box --> */}
-                  <GenderDropdown genders={genders} />
-
-                  {/* // <!-- size box --> */}
-                  <SizeDropdown />
-
-                  {/* // <!-- color box --> */}
-                  <ColorsDropdwon />
-
-                  {/* // <!-- price range box --> */}
-                  <PriceDropdown />
                 </div>
               </form>
             </div>
@@ -157,14 +166,14 @@ const ShopWithSidebar = () => {
 
             {/* // <!-- Content Start --> */}
             <div className="xl:max-w-[870px] w-full">
-              <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
+              <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6 border-l-4 border-gradient-to-b border-orange-400">
                 <div className="flex items-center justify-between">
                   {/* <!-- top bar left --> */}
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
                     <p>
-                      Mostrando <span className="text-dark">21 productos</span>{" "}
+                      Mostrando <span className="text-gray-800 font-medium">{products.length} productos</span>{" "}
                       disponibles
                     </p>
                   </div>
@@ -176,9 +185,9 @@ const ShopWithSidebar = () => {
                       aria-label="button for product grid tab"
                       className={`${
                         productStyle === "grid"
-                          ? "bg-blue border-blue text-white"
-                          : "text-dark bg-gray-1 border-gray-3"
-                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
+                          ? "bg-gradient-to-r from-orange-500 to-yellow-500 border-orange-500 text-white"
+                          : "text-gray-600 bg-gray-1 border-gray-3"
+                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-gradient-to-r hover:from-orange-500 hover:to-yellow-500 hover:border-orange-500 hover:text-white`}
                     >
                       <svg
                         className="fill-current"
@@ -220,9 +229,9 @@ const ShopWithSidebar = () => {
                       aria-label="button for product list tab"
                       className={`${
                         productStyle === "list"
-                          ? "bg-blue border-blue text-white"
-                          : "text-dark bg-gray-1 border-gray-3"
-                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
+                          ? "bg-gradient-to-r from-green-500 to-blue-500 border-green-500 text-white"
+                          : "text-gray-600 bg-gray-1 border-gray-3"
+                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-gradient-to-r hover:from-green-500 hover:to-blue-500 hover:border-green-500 hover:text-white`}
                     >
                       <svg
                         className="fill-current"
@@ -251,21 +260,26 @@ const ShopWithSidebar = () => {
               </div>
 
               {/* <!-- Products Grid Tab Content Start --> */}
-              <div
-                className={`${
-                  productStyle === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7.5 gap-y-9"
-                    : "flex flex-col gap-7.5"
-                }`}
-              >
-                {shopData.map((item, key) =>
-                  productStyle === "grid" ? (
-                    <SingleGridItem item={item} key={key} />
-                  ) : (
-                    <SingleListItem item={item} key={key} />
-                  )
-                )}
-              </div>
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Cargando productos...</p>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`${
+                    productStyle === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7.5 gap-y-9"
+                      : "flex flex-col gap-7.5"
+                  }`}
+                >
+                  {products.map((item, key) => (
+                    <ProductItem item={item} key={key} />
+                  ))}
+                </div>
+              )}
               {/* <!-- Products Grid Tab Content End --> */}
 
               {/* <!-- Products Pagination Start --> */}

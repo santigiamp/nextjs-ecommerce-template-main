@@ -37,8 +37,8 @@ const Header = () => {
               <Image
                 src="/images/logo/ChatGPT Image 30 jun 2025, 17_26_11.png"
                 alt="Distribuidora Alegría Logo"
-                width={60}
-                height={60}
+                width={80}
+                height={80}
                 className="rounded-lg"
               />
               <div>
