@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { PedidoRequest } from "@/types/product";
 import { orderAPI } from "@/lib/api";
+import emailjs from '@emailjs/browser';
+import { EMAILJS_CONFIG, EmailParams } from '@/lib/emailjs';
 
 interface OrderFormProps {
   product: {
@@ -33,18 +35,46 @@ const OrderForm: React.FC<OrderFormProps> = ({ product, onClose, onSuccess }) =>
     setError(null);
 
     try {
-      // Agregar el email de destino a los datos
-      const orderData = {
-        ...formData,
-        email_destino: "santinogiampietro7@gmail.com"
+      // Enviar email usando EmailJS
+      const emailParams = {
+        from_name: formData.nombre,
+        from_email: formData.email,
+        phone: formData.telefono,
+        product: formData.producto_nombre,
+        quantity: formData.cantidad.toString(),
+        comments: formData.comentarios || 'Sin comentarios adicionales',
+        order_date: new Date().toLocaleString('es-ES', {
+          day: '2-digit',
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
       };
+
+      await emailjs.send(
+        EMAILJS_CONFIG.SERVICE_ID,
+        EMAILJS_CONFIG.TEMPLATE_ID,
+        emailParams,
+        EMAILJS_CONFIG.PUBLIC_KEY
+      );
+
+      // También guardar en el backend (opcional, para registros)
+      try {
+        const orderData = {
+          ...formData,
+          email_destino: "santinogiampietro7@gmail.com"
+        };
+        await orderAPI.createOrder(orderData);
+      } catch (backendError) {
+        console.log('Backend storage failed, but email was sent successfully');
+      }
       
-      const response = await orderAPI.createOrder(orderData);
-      onSuccess(response.mensaje || "¡Pedido enviado correctamente!");
+      onSuccess("¡Pedido enviado correctamente! Recibirás una respuesta pronto.");
       onClose();
     } catch (err) {
       console.error('Error al enviar pedido:', err);
-      setError('Error al enviar el pedido. Por favor, inténtalo de nuevo.');
+      setError('Error al enviar el pedido. Por favor, verifica tu conexión e inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
