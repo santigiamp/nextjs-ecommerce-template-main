@@ -26,9 +26,11 @@ app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 # Configuración de PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required")
-print(f"DATABASE_URL configured: {DATABASE_URL is not None}")
-print(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
+    print("Warning: DATABASE_URL not found, using SQLite fallback")
+    DATABASE_URL = "sqlite:///./ecommerce.db"
+else:
+    print(f"DATABASE_URL configured: {DATABASE_URL is not None}")
+    print(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
 
 # Usar driver psycopg2 estándar
 # No necesitamos modificar la URL para psycopg2
@@ -43,15 +45,17 @@ cloudinary_key = os.getenv("CLOUDINARY_API_KEY")
 cloudinary_secret = os.getenv("CLOUDINARY_API_SECRET")
 
 if not all([cloudinary_name, cloudinary_key, cloudinary_secret]):
-    raise ValueError("CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables are required")
+    print("Warning: Cloudinary not configured, image uploads will be disabled")
+    cloudinary_name = None
 
 print(f"Cloudinary configured: name={cloudinary_name is not None}, key={cloudinary_key is not None}, secret={cloudinary_secret is not None}")
 
-cloudinary.config(
-    cloud_name=cloudinary_name,
-    api_key=cloudinary_key,
-    api_secret=cloudinary_secret
-)
+if cloudinary_name:
+    cloudinary.config(
+        cloud_name=cloudinary_name,
+        api_key=cloudinary_key,
+        api_secret=cloudinary_secret
+    )
 
 # Configuración de Email
 MAIL_USERNAME = os.getenv("MAIL_USERNAME")
@@ -59,7 +63,8 @@ MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
 MAIL_FROM = os.getenv("MAIL_FROM")
 
 if not all([MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM]):
-    raise ValueError("MAIL_USERNAME, MAIL_PASSWORD, and MAIL_FROM environment variables are required")
+    print("Warning: Email not configured, email notifications will be disabled")
+    MAIL_USERNAME = None
 
 MAIL_SERVER = "smtp.gmail.com"
 MAIL_PORT = 587
@@ -306,6 +311,9 @@ def health_check():
 async def upload_image(file: UploadFile = File(...)):
     """Subir imagen de producto a Cloudinary"""
     try:
+        if not cloudinary_name:
+            raise HTTPException(status_code=503, detail="Image upload service not configured")
+            
         # Validar tipo de archivo
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
@@ -462,8 +470,9 @@ async def crear_pedido(pedido: PedidoRequest, background_tasks: BackgroundTasks,
         db.commit()
         db.refresh(pedido_db)
         
-        # Enviar email en background
-        background_tasks.add_task(send_order_email, pedido, pedido_db.id)
+        # Enviar email en background solo si está configurado
+        if MAIL_USERNAME:
+            background_tasks.add_task(send_order_email, pedido, pedido_db.id)
         
         return PedidoResponse(
             id=pedido_db.id,
