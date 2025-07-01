@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -12,6 +12,8 @@ import json
 from typing import List, Optional
 import os
 from datetime import datetime
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from jinja2 import Template
 
 app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 
@@ -43,6 +45,21 @@ cloudinary.config(
     api_secret=cloudinary_secret
 )
 
+# Configuración de Email
+email_config = ConnectionConfig(
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME", "santinogiampietro7@gmail.com"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD", ""),  # App password
+    MAIL_FROM=os.getenv("MAIL_FROM", "santinogiampietro7@gmail.com"),
+    MAIL_PORT=587,
+    MAIL_SERVER="smtp.gmail.com",
+    MAIL_STARTTLS=True,
+    MAIL_SSL_TLS=False,
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True
+)
+
+fastmail = FastMail(email_config)
+
 # Modelo de la base de datos
 class ProductoDB(Base):
     __tablename__ = "productos"
@@ -64,6 +81,7 @@ class PedidoDB(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, nullable=False)
+    email = Column(String, nullable=False)
     telefono = Column(String, nullable=False)
     producto_id = Column(Integer)
     producto_nombre = Column(String)
@@ -118,11 +136,13 @@ class ProductoCreate(BaseModel):
 
 class PedidoRequest(BaseModel):
     nombre: str
+    email: str
     telefono: str
     producto_id: int
     producto_nombre: str
     cantidad: int
     comentarios: Optional[str] = ""
+    email_destino: Optional[str] = None  # Email adicional del frontend
 
 class PedidoResponse(BaseModel):
     id: int
@@ -173,6 +193,86 @@ def init_sample_products():
 
 # Inicializar productos de ejemplo al arrancar
 init_sample_products()
+
+# Función para enviar email de notificación
+async def send_order_email(pedido: PedidoRequest, pedido_id: int):
+    """Enviar email de confirmación de pedido"""
+    try:
+        # Template para el email
+        email_template = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #f97316; margin: 0;">🛒 Nuevo Pedido - Distribuidora Alegría</h1>
+                    <p style="color: #666; margin: 10px 0;">🌈 Mayorista de Juguetes 🎨</p>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #fed7aa 0%, #fef3c7 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h2 style="color: #1f2937; margin: 0 0 15px 0;">📦 Detalles del Pedido #{{ pedido_id }}</h2>
+                    <p style="margin: 5px 0;"><strong>📅 Fecha:</strong> {{ fecha }}</p>
+                </div>
+                
+                <div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #15803d; margin: 0 0 15px 0;">👤 Información del Cliente</h3>
+                    <p style="margin: 5px 0;"><strong>Nombre:</strong> {{ nombre }}</p>
+                    <p style="margin: 5px 0;"><strong>Email:</strong> {{ email }}</p>
+                    <p style="margin: 5px 0;"><strong>Teléfono:</strong> {{ telefono }}</p>
+                </div>
+                
+                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #1d4ed8; margin: 0 0 15px 0;">🎁 Producto Solicitado</h3>
+                    <p style="margin: 5px 0;"><strong>Producto:</strong> {{ producto_nombre }}</p>
+                    <p style="margin: 5px 0;"><strong>Cantidad:</strong> {{ cantidad }} unidades</p>
+                    {% if comentarios %}
+                    <p style="margin: 15px 0 5px 0;"><strong>Comentarios:</strong></p>
+                    <p style="background-color: #f8fafc; padding: 10px; border-radius: 5px; margin: 5px 0;">{{ comentarios }}</p>
+                    {% endif %}
+                </div>
+                
+                <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p style="margin: 0; color: #92400e; font-weight: bold;">⚡ Acción requerida:</p>
+                    <p style="margin: 5px 0; color: #92400e;">Contactar al cliente lo antes posible para confirmar disponibilidad y coordinar entrega.</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">Distribuidora Alegría - Mayorista de Juguetes</p>
+                    <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">Este email fue generado automáticamente desde el sistema de pedidos</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Renderizar template
+        template = Template(email_template)
+        html_content = template.render(
+            pedido_id=pedido_id,
+            fecha=datetime.now().strftime("%d/%m/%Y %H:%M"),
+            nombre=pedido.nombre,
+            email=pedido.email,
+            telefono=pedido.telefono,
+            producto_nombre=pedido.producto_nombre,
+            cantidad=pedido.cantidad,
+            comentarios=pedido.comentarios
+        )
+        
+        # Determinar email de destino
+        email_destino = pedido.email_destino or "santinogiampietro7@gmail.com"
+        
+        message = MessageSchema(
+            subject=f"🛒 Nuevo Pedido #{pedido_id} - {pedido.producto_nombre}",
+            recipients=[email_destino],
+            body=html_content,
+            subtype=MessageType.html
+        )
+        
+        await fastmail.send_message(message)
+        print(f"Email enviado exitosamente para pedido #{pedido_id} a {email_destino}")
+        
+    except Exception as e:
+        print(f"Error al enviar email: {str(e)}")
+        # No lanzamos excepción para que el pedido se registre aunque falle el email
 
 @app.get("/")
 def read_root():
@@ -329,11 +429,12 @@ def get_categorias(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error al obtener categorías: {str(e)}")
 
 @app.post("/pedidos", response_model=PedidoResponse)
-def crear_pedido(pedido: PedidoRequest, db: Session = Depends(get_db)):
-    """Crear un nuevo pedido"""
+async def crear_pedido(pedido: PedidoRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Crear un nuevo pedido y enviar notificación por email"""
     try:
         pedido_db = PedidoDB(
             nombre=pedido.nombre,
+            email=pedido.email,
             telefono=pedido.telefono,
             producto_id=pedido.producto_id,
             producto_nombre=pedido.producto_nombre,
@@ -345,9 +446,12 @@ def crear_pedido(pedido: PedidoRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(pedido_db)
         
+        # Enviar email en background
+        background_tasks.add_task(send_order_email, pedido, pedido_db.id)
+        
         return PedidoResponse(
             id=pedido_db.id,
-            mensaje=f"Pedido #{pedido_db.id} registrado correctamente. Nos contactaremos pronto!"
+            mensaje=f"Pedido #{pedido_db.id} registrado correctamente. Se ha enviado una notificación por email."
         )
         
     except Exception as e:
@@ -364,6 +468,7 @@ def get_pedidos(db: Session = Depends(get_db)):
             pedidos.append({
                 "id": pedido_db.id,
                 "nombre": pedido_db.nombre,
+                "email": getattr(pedido_db, 'email', ''),  # Compatibilidad con pedidos antiguos
                 "telefono": pedido_db.telefono,
                 "producto_nombre": pedido_db.producto_nombre,
                 "cantidad": pedido_db.cantidad,

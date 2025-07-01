@@ -44,9 +44,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ product, onClose, onSuccess }) =>
       onClose();
     } catch (err) {
       console.error('Error al enviar pedido:', err);
-      // Si falla la API, simular envío exitoso para demo
-      onSuccess(`¡Pedido simulado enviado! Producto: ${product.nombre}, Cantidad: ${formData.cantidad}, Cliente: ${formData.nombre}`);
-      onClose();
+      setError('Error al enviar el pedido. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
