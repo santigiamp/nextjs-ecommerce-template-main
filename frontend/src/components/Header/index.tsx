@@ -31,21 +31,21 @@ const Header = () => {
       <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
         <div
           className={`flex items-center justify-between ease-out duration-200 ${
-            stickyMenu ? "py-4" : "py-6"
+            stickyMenu ? "py-2" : "py-3"
           }`}
         >
           {/* Logo */}
           <Link className="flex-shrink-0" href="/shop-with-sidebar">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Image
                 src="/images/logo/ChatGPT Image 30 jun 2025, 17_26_11.png"
                 alt="Distribuidora Alegría Logo"
-                width={180}
-                height={180}
+                width={160}
+                height={160}
                 className="rounded-lg"
               />
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Distribuidora Alegría</h1>
+                <h1 className="text-lg font-bold text-gray-800">Distribuidora Alegría</h1>
                 <p className="text-xs" style={{ color: '#dc2626' }}>🌈 Mayorista de Juguetes 🎨</p>
               </div>
             </div>
