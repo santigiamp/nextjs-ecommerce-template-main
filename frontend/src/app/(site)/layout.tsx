@@ -17,6 +17,7 @@ import ScrollToTop from "@/components/Common/ScrollToTop";
 import PreLoader from "@/components/Common/PreLoader";
 import WhatsAppButton from "@/components/Common/WhatsAppButton";
 import { Toaster } from "react-hot-toast";
+import { VisualEditing } from "@sanity/visual-editing/react";
 
 export default function RootLayout({
   children,
@@ -30,39 +31,44 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html lang="en" suppressHydrationWarning={true}>
-      <body>
+    <html lang="en" suppressHydrationWarning={true} data-oid="l4dei89">
+      <body data-oid="mlkav2.">
         {loading ? (
-          <PreLoader />
+          <PreLoader data-oid="p8vrad0" />
         ) : (
           <>
-            <ReduxProvider>
-              <CartModalProvider>
-                <ModalProvider>
-                  <PreviewSliderProvider>
-                    <Header />
+            <ReduxProvider data-oid="7a48uij">
+              <CartModalProvider data-oid="ylmq.4q">
+                <ModalProvider data-oid="cvrnv7h">
+                  <PreviewSliderProvider data-oid="gnzi.d_">
+                    <Header data-oid="ofqqzvs" />
                     {children}
 
-                    <QuickViewModal />
-                    <CartSidebarModal />
-                    <PreviewSliderModal />
+                    <QuickViewModal data-oid="vsb-ub4" />
+                    <CartSidebarModal data-oid="rpn_j-6" />
+                    <PreviewSliderModal data-oid="s-gyx_k" />
                   </PreviewSliderProvider>
                 </ModalProvider>
               </CartModalProvider>
             </ReduxProvider>
-            <ScrollToTop />
-            <WhatsAppButton />
-            <Footer />
-            <Toaster 
+            <ScrollToTop data-oid="yofi6j1" />
+            <WhatsAppButton data-oid="uk_8e7p" />
+            <Footer data-oid="65b6ngm" />
+            <Toaster
               position="top-right"
               toastOptions={{
                 duration: 4000,
                 style: {
-                  background: '#363636',
-                  color: '#fff',
+                  background: "#363636",
+                  color: "#fff",
                 },
               }}
+              data-oid="eko0y2p"
             />
+
+            {process.env.NODE_ENV === "development" && (
+              <VisualEditing data-oid="hxohc9l" />
+            )}
           </>
         )}
       </body>
