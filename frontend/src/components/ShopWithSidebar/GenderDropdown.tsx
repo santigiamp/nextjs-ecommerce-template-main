@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { GenderDropdownProps, GenderItemProps } from "@/types/product";
 
-const GenderItem = ({ category }) => {
+const GenderItem: React.FC<GenderItemProps> = ({ category }) => {
   const [selected, setSelected] = useState(false);
   return (
     <button
@@ -48,7 +49,7 @@ const GenderItem = ({ category }) => {
   );
 };
 
-const GenderDropdown = ({ genders }) => {
+const GenderDropdown: React.FC<GenderDropdownProps> = ({ genders }) => {
   const [toggleDropdown, setToggleDropdown] = useState(true);
 
   return (

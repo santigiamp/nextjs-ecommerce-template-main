@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { HeaderDropdownProps } from "@/types/product";
 
-const Dropdown = ({ menuItem, stickyMenu }) => {
+const Dropdown: React.FC<HeaderDropdownProps> = ({ menuItem, stickyMenu }) => {
   const [dropdownToggler, setDropdownToggler] = useState(false);
   const pathUrl = usePathname();
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { CategoryDropdownProps, CategoryItemProps } from "@/types/product";
 
-const CategoryItem = ({ category }) => {
+const CategoryItem: React.FC<CategoryItemProps> = ({ category }) => {
   const [selected, setSelected] = useState(false);
   return (
     <button
@@ -49,13 +50,13 @@ const CategoryItem = ({ category }) => {
   );
 };
 
-const CategoryDropdown = ({ categories }) => {
+const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ categories }) => {
   const [toggleDropdown, setToggleDropdown] = useState(true);
 
   return (
     <div className="bg-white shadow-1 rounded-lg border-l-4 border-blue-400">
       <div
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent) => {
           e.preventDefault();
           setToggleDropdown(!toggleDropdown);
         }}

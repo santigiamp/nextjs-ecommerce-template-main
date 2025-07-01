@@ -1,7 +1,8 @@
 import Link from "next/link";
 import React from "react";
+import { BreadcrumbProps } from "@/types/product";
 
-const Breadcrumb = ({ title, pages }) => {
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ title, pages }) => {
   return (
     <div className="overflow-hidden shadow-breadcrumb pt-[209px] sm:pt-[155px] lg:pt-[95px] xl:pt-[165px] bg-gradient-to-r from-orange-100 via-yellow-100 to-green-100">
       <div className="border-t-4 border-gradient-to-r border-orange-400">
