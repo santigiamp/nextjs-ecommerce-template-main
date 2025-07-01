@@ -1,7 +1,11 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
+try:
+    from pydantic import EmailStr
+except ImportError:
+    EmailStr = str
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -12,7 +16,9 @@ import json
 from typing import List, Optional
 import os
 from datetime import datetime
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+import aiosmtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from jinja2 import Template
 
 app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
@@ -46,19 +52,11 @@ cloudinary.config(
 )
 
 # Configuración de Email
-email_config = ConnectionConfig(
-    MAIL_USERNAME=os.getenv("MAIL_USERNAME", "santinogiampietro7@gmail.com"),
-    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD", ""),  # App password
-    MAIL_FROM=os.getenv("MAIL_FROM", "santinogiampietro7@gmail.com"),
-    MAIL_PORT=587,
-    MAIL_SERVER="smtp.gmail.com",
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True
-)
-
-fastmail = FastMail(email_config)
+MAIL_USERNAME = os.getenv("MAIL_USERNAME", "santinogiampietro7@gmail.com")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
+MAIL_FROM = os.getenv("MAIL_FROM", "santinogiampietro7@gmail.com")
+MAIL_SERVER = "smtp.gmail.com"
+MAIL_PORT = 587
 
 # Modelo de la base de datos
 class ProductoDB(Base):
@@ -136,7 +134,7 @@ class ProductoCreate(BaseModel):
 
 class PedidoRequest(BaseModel):
     nombre: str
-    email: str
+    email: str  # No usamos EmailStr para evitar dependencias
     telefono: str
     producto_id: int
     producto_nombre: str
@@ -260,14 +258,26 @@ async def send_order_email(pedido: PedidoRequest, pedido_id: int):
         # Determinar email de destino
         email_destino = pedido.email_destino or "santinogiampietro7@gmail.com"
         
-        message = MessageSchema(
-            subject=f"🛒 Nuevo Pedido #{pedido_id} - {pedido.producto_nombre}",
-            recipients=[email_destino],
-            body=html_content,
-            subtype=MessageType.html
+        # Crear mensaje
+        message = MIMEMultipart("alternative")
+        message["Subject"] = f"🛒 Nuevo Pedido #{pedido_id} - {pedido.producto_nombre}"
+        message["From"] = MAIL_FROM
+        message["To"] = email_destino
+        
+        # Crear parte HTML
+        html_part = MIMEText(html_content, "html")
+        message.attach(html_part)
+        
+        # Enviar email
+        await aiosmtplib.send(
+            message,
+            hostname=MAIL_SERVER,
+            port=MAIL_PORT,
+            start_tls=True,
+            username=MAIL_USERNAME,
+            password=MAIL_PASSWORD,
         )
         
-        await fastmail.send_message(message)
         print(f"Email enviado exitosamente para pedido #{pedido_id} a {email_destino}")
         
     except Exception as e:
