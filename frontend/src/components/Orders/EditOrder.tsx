@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { EditOrderProps } from "@/types/product";
 
-const EditOrder = ({ order, toggleModal }: any) => {
+const EditOrder = ({ order, toggleModal }: EditOrderProps) => {
   const [currentStatus, setCurrentStatus] = useState(order?.status);
-  const handleChanege = (e: any) => {
+  const handleChanege = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentStatus(e.target.value);
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!currentStatus) {

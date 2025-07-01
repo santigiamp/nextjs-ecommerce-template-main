@@ -1,0 +1,21 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/(site)/page": "/",
+  "/(site)/(pages)/cart/page": "/cart",
+  "/(site)/(pages)/error/page": "/error",
+  "/(site)/(pages)/checkout/page": "/checkout",
+  "/(site)/(pages)/contact/page": "/contact",
+  "/(site)/(pages)/my-account/page": "/my-account",
+  "/(site)/(pages)/mail-success/page": "/mail-success",
+  "/(site)/(pages)/shop-details/page": "/shop-details",
+  "/(site)/(pages)/shop-with-sidebar/page": "/shop-with-sidebar",
+  "/(site)/(pages)/shop-without-sidebar/page": "/shop-without-sidebar",
+  "/(site)/(pages)/signin/page": "/signin",
+  "/(site)/(pages)/signup/page": "/signup",
+  "/(site)/(pages)/wishlist/page": "/wishlist",
+  "/(site)/blogs/blog-details/page": "/blogs/blog-details",
+  "/(site)/blogs/blog-details-with-sidebar/page": "/blogs/blog-details-with-sidebar",
+  "/(site)/blogs/blog-grid-with-sidebar/page": "/blogs/blog-grid-with-sidebar",
+  "/(site)/blogs/blog-grid/page": "/blogs/blog-grid"
+}

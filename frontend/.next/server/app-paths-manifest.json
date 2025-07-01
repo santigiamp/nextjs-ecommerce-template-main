@@ -1,0 +1,21 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(site)/page": "app/(site)/page.js",
+  "/(site)/(pages)/cart/page": "app/(site)/(pages)/cart/page.js",
+  "/(site)/(pages)/error/page": "app/(site)/(pages)/error/page.js",
+  "/(site)/(pages)/checkout/page": "app/(site)/(pages)/checkout/page.js",
+  "/(site)/(pages)/contact/page": "app/(site)/(pages)/contact/page.js",
+  "/(site)/(pages)/my-account/page": "app/(site)/(pages)/my-account/page.js",
+  "/(site)/(pages)/mail-success/page": "app/(site)/(pages)/mail-success/page.js",
+  "/(site)/(pages)/shop-details/page": "app/(site)/(pages)/shop-details/page.js",
+  "/(site)/(pages)/shop-with-sidebar/page": "app/(site)/(pages)/shop-with-sidebar/page.js",
+  "/(site)/(pages)/shop-without-sidebar/page": "app/(site)/(pages)/shop-without-sidebar/page.js",
+  "/(site)/(pages)/signin/page": "app/(site)/(pages)/signin/page.js",
+  "/(site)/(pages)/signup/page": "app/(site)/(pages)/signup/page.js",
+  "/(site)/(pages)/wishlist/page": "app/(site)/(pages)/wishlist/page.js",
+  "/(site)/blogs/blog-details/page": "app/(site)/blogs/blog-details/page.js",
+  "/(site)/blogs/blog-details-with-sidebar/page": "app/(site)/blogs/blog-details-with-sidebar/page.js",
+  "/(site)/blogs/blog-grid-with-sidebar/page": "app/(site)/blogs/blog-grid-with-sidebar/page.js",
+  "/(site)/blogs/blog-grid/page": "app/(site)/blogs/blog-grid/page.js"
+}

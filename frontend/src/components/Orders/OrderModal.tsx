@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import OrderDetails from "./OrderDetails";
 import EditOrder from "./EditOrder";
+import { OrderModalProps } from "@/types/product";
 
-const OrderModal = ({ showDetails, showEdit, toggleModal, order }: any) => {
+const OrderModal = ({ showDetails, showEdit, toggleModal, order }: OrderModalProps) => {
   if (!showDetails && !showEdit) {
     return null;
   }

@@ -7,7 +7,7 @@ try:
 except ImportError:
     EmailStr = str
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.sql import func
 import cloudinary
@@ -25,11 +25,10 @@ app = FastAPI(title="E-commerce Mayorista API", version="3.0.0")
 
 # Configuración de PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL")
-print(f"DATABASE_URL configured: {DATABASE_URL is not None}")
-if DATABASE_URL:
-    print(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is required")
+print(f"DATABASE_URL configured: {DATABASE_URL is not None}")
+print(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
 
 # Usar driver psycopg2 estándar
 # No necesitamos modificar la URL para psycopg2
@@ -43,6 +42,9 @@ cloudinary_name = os.getenv("CLOUDINARY_CLOUD_NAME")
 cloudinary_key = os.getenv("CLOUDINARY_API_KEY")
 cloudinary_secret = os.getenv("CLOUDINARY_API_SECRET")
 
+if not all([cloudinary_name, cloudinary_key, cloudinary_secret]):
+    raise ValueError("CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables are required")
+
 print(f"Cloudinary configured: name={cloudinary_name is not None}, key={cloudinary_key is not None}, secret={cloudinary_secret is not None}")
 
 cloudinary.config(
@@ -52,9 +54,13 @@ cloudinary.config(
 )
 
 # Configuración de Email
-MAIL_USERNAME = os.getenv("MAIL_USERNAME", "santinogiampietro7@gmail.com")
-MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
-MAIL_FROM = os.getenv("MAIL_FROM", "santinogiampietro7@gmail.com")
+MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+MAIL_FROM = os.getenv("MAIL_FROM")
+
+if not all([MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM]):
+    raise ValueError("MAIL_USERNAME, MAIL_PASSWORD, and MAIL_FROM environment variables are required")
+
 MAIL_SERVER = "smtp.gmail.com"
 MAIL_PORT = 587
 
@@ -102,7 +108,7 @@ def get_db():
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios exactos
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "").split(",") if os.getenv("ALLOWED_ORIGINS") else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -256,7 +262,7 @@ async def send_order_email(pedido: PedidoRequest, pedido_id: int):
         )
         
         # Determinar email de destino
-        email_destino = pedido.email_destino or "santinogiampietro7@gmail.com"
+        email_destino = pedido.email_destino or os.getenv("DEFAULT_EMAIL_RECIPIENT")
         
         # Crear mensaje
         message = MIMEMultipart("alternative")

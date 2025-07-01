@@ -1,0 +1,151 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/blogs/blog-details",
+      "regex": "^/blogs/blog\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs/blog\\-details(?:/)?$"
+    },
+    {
+      "page": "/blogs/blog-details-with-sidebar",
+      "regex": "^/blogs/blog\\-details\\-with\\-sidebar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs/blog\\-details\\-with\\-sidebar(?:/)?$"
+    },
+    {
+      "page": "/blogs/blog-grid",
+      "regex": "^/blogs/blog\\-grid(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs/blog\\-grid(?:/)?$"
+    },
+    {
+      "page": "/blogs/blog-grid-with-sidebar",
+      "regex": "^/blogs/blog\\-grid\\-with\\-sidebar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs/blog\\-grid\\-with\\-sidebar(?:/)?$"
+    },
+    {
+      "page": "/cart",
+      "regex": "^/cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cart(?:/)?$"
+    },
+    {
+      "page": "/checkout",
+      "regex": "^/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout(?:/)?$"
+    },
+    {
+      "page": "/contact",
+      "regex": "^/contact(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contact(?:/)?$"
+    },
+    {
+      "page": "/error",
+      "regex": "^/error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/error(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/mail-success",
+      "regex": "^/mail\\-success(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/mail\\-success(?:/)?$"
+    },
+    {
+      "page": "/my-account",
+      "regex": "^/my\\-account(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/my\\-account(?:/)?$"
+    },
+    {
+      "page": "/shop-details",
+      "regex": "^/shop\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/shop\\-details(?:/)?$"
+    },
+    {
+      "page": "/shop-with-sidebar",
+      "regex": "^/shop\\-with\\-sidebar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/shop\\-with\\-sidebar(?:/)?$"
+    },
+    {
+      "page": "/shop-without-sidebar",
+      "regex": "^/shop\\-without\\-sidebar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/shop\\-without\\-sidebar(?:/)?$"
+    },
+    {
+      "page": "/signin",
+      "regex": "^/signin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signin(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/wishlist",
+      "regex": "^/wishlist(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/wishlist(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "RSC",
+    "varyHeader": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch",
+    "prefetchHeader": "Next-Router-Prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "Next-Router-Segment-Prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  },
+  "rewrites": []
+}

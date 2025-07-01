@@ -43,3 +43,28 @@ export type ImageUploadResponse = {
   url: string;
   message: string;
 };
+
+export type Order = {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string;
+  producto_id: number;
+  producto_nombre: string;
+  cantidad: number;
+  comentarios?: string;
+  fecha_pedido?: string;
+  estado: string;
+};
+
+export type OrderModalProps = {
+  showDetails: boolean;
+  showEdit: boolean;
+  toggleModal: (state: boolean) => void;
+  order: Order;
+};
+
+export type EditOrderProps = {
+  order: Order;
+  toggleModal: (state: boolean) => void;
+};
